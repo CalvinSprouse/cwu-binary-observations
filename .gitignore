@@ -2,6 +2,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,venv,visualstudiocode
 ### BinaryObservations ###
 # custom ignores
+_ExampleScripts/
+*.DS_Store
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
