@@ -86,14 +86,15 @@ def get_focuser_info(focuser_conn: ace.focuser.Focuser) -> dict:
 # load focuser values
 # update each night
 filter_focus_dict = {
-    "Clear": 0,
-    "Bessel U": 0,
-    "Bessel B": 0,
-    "Bessel V": 0,
-    "Bessel R": 0,
-    "Bessel I": 0,
-    "Halpha": 0,
-    "Hbeta": 0,
-    "O3": 0,
-    "O2": 0,
+    "Empty": (0, 0),
+    "Bessel U": (0, 0),
+    "Bessel B": (0, 0),
+    "Bessel V": (0, 0),
+    "Bessel R": (0, 0),
+    "Bessel I": (0, 0),
+    "Bessel Clear": (0, 0),
+    "H Alpha": (0, 0),
+    "H Beta": (0, 0),
+    "O_III": (0, 0),
+    "S_II": (0, 0),
 }
