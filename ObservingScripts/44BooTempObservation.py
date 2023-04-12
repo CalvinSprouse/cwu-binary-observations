@@ -8,7 +8,7 @@ import time
 # import astropy
 # import astropy.coordinates as coord
 
-from Initializer import *
+from TemplateScripts.Initializer import *
 
 from astropy.coordinates import SkyCoord
 
