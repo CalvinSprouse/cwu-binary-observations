@@ -6,6 +6,8 @@
 # imports
 from __future__ import print_function
 
+import time
+
 import ace.syscore
 import ace.telescope
 import ace.camera
@@ -52,6 +54,7 @@ def get_camera_info(camera_conn: ace.camera.Camera) -> dict:
         "target_temperature": camera_conn.setpoint,
         "readout_mode": camera_conn.readout_mode,
         "can_pause": camera_conn.can_pause,
+        "template": camera_conn.template,
     }
 
 def get_filterwheel_info(filterwheel_conn: ace.filterwheel.FilterWheel) -> dict:
@@ -81,20 +84,3 @@ def get_focuser_info(focuser_conn: ace.focuser.Focuser) -> dict:
         "minimum": focuser_conn.minimum,
         "maximum": focuser_conn.maximum,
     }
-
-
-# load focuser values
-# update each night
-filter_focus_dict = {
-    "Empty": (0, 0),
-    "Bessel U": (0, 0),
-    "Bessel B": (0, 0),
-    "Bessel V": (0, 0),
-    "Bessel R": (0, 0),
-    "Bessel I": (0, 0),
-    "Bessel Clear": (0, 0),
-    "H Alpha": (0, 0),
-    "H Beta": (0, 0),
-    "O_III": (0, 0),
-    "S_II": (0, 0),
-}
