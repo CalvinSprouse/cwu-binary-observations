@@ -57,10 +57,6 @@ example_obs_list = [
         # the time to pause after this observation in seconds (optional, default=1)
         "pause_time":"",
 
-        # a custom prefix to add to the .fits file (optional, default="")
-        # CURRENTLY DISABLED DO NOT USE
-        # "file_prefix":"",
-
         # a way to override the target_name, if empty will use the astropy name (optional)
         # but if full will use this given position
         # target position is a tuple of (ra, dec) both in degrees

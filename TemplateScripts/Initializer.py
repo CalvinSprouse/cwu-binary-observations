@@ -6,8 +6,6 @@
 # imports
 from __future__ import print_function
 
-import time
-
 import ace.syscore
 import ace.telescope
 import ace.camera

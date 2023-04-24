@@ -7,6 +7,13 @@ import time
 from astropy.coordinates import SkyCoord
 from astropy.coordinates.name_resolve import NameResolveError
 
+import ace.syscore
+import ace.telescope
+import ace.camera
+import ace.dome
+import ace.filterwheel
+import ace.focuser
+
 # imports from local .py files
 from Initializer import *
 from ObsConfig import *
@@ -21,23 +28,35 @@ conn, telescope, camera, filterwheel, focuser = connect()
 def reset_for_imaging(observation, safety_seconds=5):
     # move telescope
     telescope.go_to_j2000(observation["target_pos"][0], observation["target_pos"][1])
-    time.sleep(safety_seconds)
 
-    # change filter
+    # "wait until" telescope in position
+    while telescope.get_position() != telescope.get_target(): time.sleep(safety_seconds)
+
+    # reset filter to fix wheel positions
     filterwheel.go_to("Empty")
-    time.sleep(safety_seconds)
+
+    # "wait until" filterwheel in position
+    while filterwheel.state == ace.filterwheel.state.MOVING: time.sleep(safety_seconds)
+
+    # change filter to actual filter required for observation
+    filterwheel.go_to(observation.get("filter_name"))
+
+    # "wait until" filterwheel in position
+    while filterwheel.state == ace.filterwheel.state.MOVING: time.sleep(safety_seconds)
 
     # change focus
     focuser.go(filter_focus_dict[observation.get("filter_name")])
-    time.sleep(safety_seconds)
+
+    # "wait until" focuser in position
+    while focuser.state != ace.focuser.state.STOPPED: time.sleep(safety_seconds)
 
     # configure camera
     camera.template = "{0}_{1}_{2}_{3}_{{seq:3}}_PY.fits".format(
-        # observation.get("file_prefix"),
         observation.get("target_name").replace(" ", "-"),
         observation.get("filter_name"),
         str(observation.get("exp_time")).replace(".", "-"),)
     time.sleep(safety_seconds)
+
 
 def do_observations():
     for observation in obs_list:
@@ -59,19 +78,23 @@ def do_observations():
         print("Set focuser to {0}.".format(focuser_info["position"]))
 
         # take the image
-        # TODO: Integrate binning/cropping
-        exp_time = observation.get("exp_time")
-        print("Exposing for {0}".format(exp_time))
-        camera.expose(exp_time)
-        print("Exposure complete.")
+        for img_index in observation["img_cound"]:
+            # TODO: Integrate binning/cropping
+            exp_time = observation.get("exp_time")
+            print("Exposing for {0}. ({1}/{2})".format(exp_time, img_index+1, observation.get("img_count")))
+            camera.expose(exp_time)
 
-        # check for end conditions
+            # "wait until"
+            while camera.state == ace.camera.state.EXPOSING: time.sleep(1)
+            print("Exposure complete.")
+
+        # check for time end condition end conditions
         if time.time() - start_time > obs_time*60*60:
             print("Reached maximum observation time of {0} hours.".format(obs_time))
             # return False to stop looping
             return False
 
-        # check for inter image pause
+        # check for pause between observations
         if observation.get("pause_time") > 0:
             print("Pausing for {0} seconds.".format(observation.get("pause_time")))
             time.sleep(observation.get("pause_time"))

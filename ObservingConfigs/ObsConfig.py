@@ -31,100 +31,102 @@ filter_focus_dict = {
 # obs_list defines the observations to do, the obs_list will be repeated
 # as per obs_loop and run for obs_time (whichever expires first)
 # each element of obs_list is an "observation" and is a dictionary
+basic_pause = 5
+img_count = 3
 obs_list = [
     {
         "target_name": "BZ Boo",
         "filter_name": "Bessel V",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "V417 Boo",
         "filter_name": "Bessel V",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "V336 Boo",
         "filter_name": "Bessel V",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "V462 Dra",
         "filter_name": "Bessel V",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "MX UMa",
         "filter_name": "Bessel V",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "V384 UMa",
         "filter_name": "Bessel V",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "V398 UMa",
         "filter_name": "Bessel V",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "W UMa",
         "filter_name": "Bessel U",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "W UMa",
         "filter_name": "Bessel B",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "W UMa",
         "filter_name": "Bessel V",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "W UMa",
         "filter_name": "Bessel R",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 
     {
         "target_name": "W UMa",
         "filter_name": "Bessel I",
         "exp_time": 10,
-        "img_count": 3,
-        "pause_time": 30,
+        "img_count": img_count,
+        "pause_time": basic_pause,
     },
 ]
