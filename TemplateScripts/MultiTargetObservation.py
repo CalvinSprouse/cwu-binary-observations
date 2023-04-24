@@ -71,6 +71,11 @@ def do_observations():
             # return False to stop looping
             return False
 
+        # check for inter image pause
+        if observation.get("pause_time") > 0:
+            print("Pausing for {0} seconds.".format(observation.get("pause_time")))
+            time.sleep(observation.get("pause_time"))
+
     # return True to continue looping
     return True
 
@@ -152,9 +157,10 @@ if obs_list_ok:
 
         # do an observation loop and check for end conditions
         if not do_observations(): break
-        elif obs_loops >= obs_loop:
+        elif obs_loops >= obs_loop and obs_loop > 0:
             print("Reached maximum loops of {0}.".format(obs_loop))
             break
+        time.sleep(obs_pause)
 
     ### close telescope connections
     print("Imaging complete.")

@@ -2,11 +2,15 @@
 
 # obs_loop controls the maximum number of iterations
 # 0 = infinite
-obs_loop = 1
+obs_loop = 0
 
 # obs_time controls the maximum duration to run the observation in hours
-# 0 = infinite
+# must be some non-zero number (failsafe)
+# 2 hours is a good limit beyond which the lenses may require re-focusing
 obs_time = 2
+
+# obs_pause controls how long to pause between loops in seconds
+obs_pause = 1*60
 
 # configure the focus wheel values
 # add in any filter that will be used as a key
