@@ -1,3 +1,5 @@
+# Python Version: 2
+
 # configure the observation conditions
 
 # obs_loop controls the maximum number of iterations
@@ -56,6 +58,11 @@ example_obs_list = [
 
         # the time to pause after this observation in seconds (optional, default=1)
         "pause_time":"",
+
+        # a custom prefix to put in front of files
+        # note that files will be named like
+        # [prefix]_[target]_[filter]_[exposure]_[sequence]_PY.fits
+        "file_prefix":"",
 
         # a way to override the target_name, if empty will use the astropy name (optional)
         # but if full will use this given position

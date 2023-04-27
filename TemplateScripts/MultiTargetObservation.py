@@ -1,3 +1,5 @@
+# Python Version: 2
+
 ### imports
 # this import is for the better print function
 from __future__ import print_function
@@ -17,6 +19,7 @@ import ace.focuser
 # imports from local .py files
 from Initializer import *
 from ObsConfig import *
+from FitsObjFixer import fix_fits_objects
 
 
 ### get telescope connection objects
@@ -51,8 +54,9 @@ def reset_for_imaging(observation, safety_seconds=5):
 
     # configure camera
     camera.template = "{0}_{1}_{2}_{3}_{{seq:3}}_PY.fits".format(
+        observation.get("file_prefix").replace(" ", "-"),
         observation.get("target_name").replace(" ", "-"),
-        observation.get("filter_name"),
+        observation.get("filter_name").replace(" ", "-"),
         str(observation.get("exp_time")).replace(".", "-"),)
     time.sleep(safety_seconds)
 
@@ -187,5 +191,7 @@ if obs_list_ok:
     ### close telescope connections
     print("Imaging complete.")
 
+    ### run the object fixer script
+    fix_fits_objects()
 else:
     print("Errors were found during obs_list check. Fix and re-run.")

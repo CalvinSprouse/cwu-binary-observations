@@ -1,6 +1,6 @@
 # this script creates connection objects from the ACE interface
 # it really serves no purpose to run this alone
-# Python 2
+# Python Version: 2
 
 
 # imports
