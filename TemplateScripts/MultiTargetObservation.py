@@ -17,7 +17,6 @@ import ace.focuser
 # imports from local .py files
 from Initializer import *
 from ObsConfig import *
-from ObsDataFixer import *
 
 
 ### get telescope connection objects
