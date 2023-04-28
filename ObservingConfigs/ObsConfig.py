@@ -16,16 +16,9 @@ obs_pause = 1*60
 # add in any filter that will be used as a key
 # and the value of the focus wheel as a value
 filter_focus_dict = {
-    "Empty": 0,
-    "Bessel U": 0,
     "Bessel B": 0,
     "Bessel V": 0,
     "Bessel R": 0,
-    "Bessel I": 0,
-    "H Alpha": 0,
-    "H Beta": 0,
-    "O_III": 0,
-    "S_II": 0,
 }
 
 # obs_list defines the observations to do, the obs_list will be repeated
@@ -92,7 +85,7 @@ obs_list = [
 
     {
         "target_name": "W UMa",
-        "filter_name": "Bessel U",
+        "filter_name": "Bessel V",
         "exp_time": 10,
         "img_count": img_count,
         "pause_time": basic_pause,
@@ -108,23 +101,7 @@ obs_list = [
 
     {
         "target_name": "W UMa",
-        "filter_name": "Bessel V",
-        "exp_time": 10,
-        "img_count": img_count,
-        "pause_time": basic_pause,
-    },
-
-    {
-        "target_name": "W UMa",
         "filter_name": "Bessel R",
-        "exp_time": 10,
-        "img_count": img_count,
-        "pause_time": basic_pause,
-    },
-
-    {
-        "target_name": "W UMa",
-        "filter_name": "Bessel I",
         "exp_time": 10,
         "img_count": img_count,
         "pause_time": basic_pause,
