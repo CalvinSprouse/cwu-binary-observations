@@ -19,7 +19,7 @@ import ace.focuser
 # imports from local .py files
 from Initializer import *
 from ObsConfig import *
-# from FitsObjFixer import fix_fits_objects
+from FitsObjFixer import fix_fits_objects
 
 
 ### get telescope connection objects
@@ -32,12 +32,9 @@ def reset_for_imaging(observation, safety_seconds=5):
     telescope.go_to_j2000(observation["target_pos"][0], observation["target_pos"][1])
 
     # "wait until" telescope in position
-    while (abs(telescope.get_target().ra - telescope.get_position()[0]) > 0.5) and (abs(telescope.get_target().dec - telescope.get_position()[1]) < 0.5):
-       # print("> Slewing to {0} from {1}".format(telescope.get_target().ra, telescope.get_position()))
-       time.sleep(safety_seconds)
+    while telescope.get_position() != telescope.get_target(): time.sleep(safety_seconds)
 
     # reset filter to fix wheel positions
-    # print("> Moving Filter Wheel")
     filterwheel.go_to("Empty")
 
     # "wait until" filterwheel in position
@@ -49,7 +46,6 @@ def reset_for_imaging(observation, safety_seconds=5):
     # "wait until" filterwheel in position
     while filterwheel.state == ace.filterwheel.state.MOVING: time.sleep(safety_seconds)
 
-    # print("> Focusing")
     # change focus
     focuser.go(filter_focus_dict[observation.get("filter_name")])
 
@@ -57,11 +53,11 @@ def reset_for_imaging(observation, safety_seconds=5):
     while focuser.state != ace.focuser.state.STOPPED: time.sleep(safety_seconds)
 
     # configure camera
-    camera.template = "{0}_{1}_{2}_{3}_".format(
+    camera.template = "{0}_{1}_{2}_{3}_{{seq:3}}_PY.fits".format(
         observation.get("file_prefix").replace(" ", "-"),
         observation.get("target_name").replace(" ", "-"),
         observation.get("filter_name").replace(" ", "-"),
-        str(observation.get("exp_time")).replace(".", "-"),) + "{{seq:3}}_PY.fits"
+        str(observation.get("exp_time")).replace(".", "-"),)
     time.sleep(safety_seconds)
 
 
@@ -81,11 +77,11 @@ def do_observations():
         print("Telescope configured for observing {0}.".format(observation["target_name"]))
         print("Moved telescope to {0}.".format(telescope_info["position"]))
         print("Set camera template to {0}.".format(camera_info["template"]))
-        print("Set filter to {0}.".format(filterwheel_info["filter_name"]))
+        print("Set filter to {0}.".format(filterwheel_info["position"]))
         print("Set focuser to {0}.".format(focuser_info["position"]))
 
         # take the image
-        for img_index in range(observation["img_count"]):
+        for img_index in observation["img_cound"]:
             # TODO: Integrate binning/cropping
             exp_time = observation.get("exp_time")
             print("Exposing for {0}. ({1}/{2})".format(exp_time, img_index+1, observation.get("img_count")))
@@ -126,7 +122,6 @@ for index in range(len(obs_list)):
         if observation.get("target_name"):
             try:
                 position = SkyCoord.from_name(observation.get("target_name"))
-		obs_list[index]["target_pos"] = (position.ra.degree, position.dec.degree)
 
             except NameResolveError:
                 print(error_str_prefix + "Error when trying to get the position of {}. Fix in obs_list and try again.".format(observation.get("target_name")))
@@ -197,13 +192,6 @@ if obs_list_ok:
     print("Imaging complete.")
 
     ### run the object fixer script
-    # fix_fits_objects()
+    fix_fits_objects()
 else:
     print("Errors were found during obs_list check. Fix and re-run.")
-
-### disconnect
-conn = None
-telescope = None
-camera = None
-filterwheel = None
-focuser = None
