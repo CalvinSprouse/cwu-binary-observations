@@ -58,5 +58,4 @@ obs_list = [
 	"img_count": img_count,
 	"pause_time": basic_pause,
     },
-
 ]

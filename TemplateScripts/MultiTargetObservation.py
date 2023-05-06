@@ -6,7 +6,9 @@ from __future__ import print_function
 
 # module imports
 import time
-from astropy.coordinates import SkyCoord
+import astropy.units as u
+from astropy.time import Time
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 from astropy.coordinates.name_resolve import NameResolveError
 
 import ace.syscore
@@ -25,9 +27,37 @@ from ObsConfig import *
 ### get telescope connection objects
 conn, telescope, camera, filterwheel, focuser = connect()
 
+### establish location/time (will update periodically)
+current_location = EarthLocation(lat=47.00*u.deg, lon=-120.54*u.deg, alt=400*u.m)
+current_time = Time(time.strftime("%Y-%m-%d %H-%M-%S")) - utc_offset*u.hour
+
 
 ### define a function to reset the telescope between images
 def reset_for_imaging(observation, safety_seconds=5):
+    # get current time for coordinate transformation
+    current_time = Time(time.strftime("%Y-%m-%d %H-%M-%S")) - utc_offset*u.hour
+
+    # get the az/alt of the target
+    radec = SkyCoord(ra=observation["target_position"][0]*u.deg, dec=observation["target_position"][1]*u.deg)
+    azalt = radec.transform_to(AltAz(obstime=current_time, location=current_location))
+    az = azalt.az.deg
+    alt = azalt.alt.deg
+
+    # check that coordinates do not take the telescope to an illegal position
+    # if 90 < az < 180 and alt < 20 (illegal)
+    # if 180 < az < 360 and alt < 40 (illegal)
+    # add 5 degress for safety
+    # these values could defo be tweaked
+    if (90 < az and az < 180) and (alt >= 25): pass
+    elif (180 <= az and az <= 360) and (alt >= 45): pass
+    else:
+        # object is too low in its part of the sky, this is a harsh method but its safe
+        print("{0} too low, skipping. (Az:{1}, Alt:{2})".format(observation["target_name"], az, alt))
+
+        # false return causes looping to stop, user will have to remove the target from the observation list
+        # I could make it continue and just skip the object?
+        return True
+
     # move telescope
     telescope.go_to_j2000(observation["target_pos"][0], observation["target_pos"][1])
 
@@ -126,11 +156,11 @@ for index in range(len(obs_list)):
         if observation.get("target_name"):
             try:
                 position = SkyCoord.from_name(observation.get("target_name"))
-		obs_list[index]["target_pos"] = (position.ra.degree, position.dec.degree)
-
             except NameResolveError:
                 print(error_str_prefix + "Error when trying to get the position of {}. Fix in obs_list and try again.".format(observation.get("target_name")))
                 obs_list_ok = False
+        # if the object appears to exist then record its position in the target_pos slot
+        obs_list[index]["target_pos"] = (position.ra.degree, position.dec.degree)
     except KeyError:
         print(error_str_prefix + "Required entry target_name not found.")
         obs_list_ok = False
@@ -186,6 +216,9 @@ if obs_list_ok:
         # iterate obs_loops
         obs_loops += 1
 
+        # re-establish ace connection (this prevents seg faults in theory)
+        conn, telescope, camera, filterwheel, focuser = connect()
+
         # do an observation loop and check for end conditions
         if not do_observations(): break
         elif obs_loops >= obs_loop and obs_loop > 0:
@@ -195,9 +228,6 @@ if obs_list_ok:
 
     ### close telescope connections
     print("Imaging complete.")
-
-    ### run the object fixer script
-    # fix_fits_objects()
 else:
     print("Errors were found during obs_list check. Fix and re-run.")
 

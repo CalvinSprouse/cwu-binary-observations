@@ -1,5 +1,8 @@
 # configure the observation conditions
 
+# number of hours change from UTC, only changes with PDT vs PST time change
+utc_offset = -7
+
 # obs_loop controls the maximum number of iterations
 # 0 = infinite
 obs_loop = 0
@@ -38,7 +41,7 @@ obs_list = [
     {
         "target_name": "V417 Boo",
         "filter_name": "Bessel V",
-        "exp_time": 10,
+        "exp_time": 12,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
@@ -46,7 +49,7 @@ obs_list = [
     {
         "target_name": "V336 Boo",
         "filter_name": "Bessel V",
-        "exp_time": 10,
+        "exp_time": 12,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
@@ -62,7 +65,7 @@ obs_list = [
     {
         "target_name": "MX UMa",
         "filter_name": "Bessel V",
-        "exp_time": 10,
+        "exp_time": 8,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
@@ -70,7 +73,7 @@ obs_list = [
     {
         "target_name": "V384 UMa",
         "filter_name": "Bessel V",
-        "exp_time": 10,
+        "exp_time": 12,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
@@ -78,7 +81,7 @@ obs_list = [
     {
         "target_name": "V398 UMa",
         "filter_name": "Bessel V",
-        "exp_time": 10,
+        "exp_time": 12,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
@@ -86,7 +89,7 @@ obs_list = [
     {
         "target_name": "W UMa",
         "filter_name": "Bessel V",
-        "exp_time": 10,
+        "exp_time": 8,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
@@ -94,7 +97,7 @@ obs_list = [
     {
         "target_name": "W UMa",
         "filter_name": "Bessel B",
-        "exp_time": 10,
+        "exp_time": 16,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
@@ -102,7 +105,7 @@ obs_list = [
     {
         "target_name": "W UMa",
         "filter_name": "Bessel R",
-        "exp_time": 10,
+        "exp_time": 4,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
