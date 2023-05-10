@@ -6,6 +6,8 @@ from __future__ import print_function
 
 # module imports
 import time
+from datetime import datetime
+
 import astropy.units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
@@ -20,22 +22,26 @@ import ace.focuser
 
 # imports from local .py files
 from Initializer import *
-from ObsConfig import *
+from ExampleObsConfig import *
 # from FitsObjFixer import fix_fits_objects
 
 
 ### get telescope connection objects
 conn, telescope, camera, filterwheel, focuser = connect()
 
+
 ### establish location/time (will update periodically)
-current_location = EarthLocation(lat=47.00*u.deg, lon=-120.54*u.deg, alt=400*u.m)
-current_time = Time(time.strftime("%Y-%m-%d %H-%M-%S")) - utc_offset*u.hour
+current_location = EarthLocation(lat=47.00*u.deg, lon=-120.54*u.deg)
+current_time = Time(datetime.utcnow(), location=current_location) + utc_offset*u.hour
+
+# get the lst
+current_lst = Time(datetime.utcnow(), location=current_location).sidereal_time("mean").deg
 
 
 ### define a function to reset the telescope between images
 def reset_for_imaging(observation, safety_seconds=5):
     # get current time for coordinate transformation
-    current_time = Time(time.strftime("%Y-%m-%d %H-%M-%S")) - utc_offset*u.hour
+    current_time = Time(datetime.utcnow(), location=current_location) + utc_offset*u.hour
 
     # get the az/alt of the target
     radec = SkyCoord(ra=observation["target_position"][0]*u.deg, dec=observation["target_position"][1]*u.deg)
@@ -113,6 +119,9 @@ def do_observations():
         print("Set camera template to {0}.".format(camera_info["template"]))
         print("Set filter to {0}.".format(filterwheel_info["filter_name"]))
         print("Set focuser to {0}.".format(focuser_info["position"]))
+
+        # get the lst, this helps generate a "safe position" in case of going too low into the horizon
+        # current_lst = Time(datetime.utcnow(), location=current_location).sidereal_time("mean").deg
 
         # take the image
         for img_index in range(observation["img_count"]):
