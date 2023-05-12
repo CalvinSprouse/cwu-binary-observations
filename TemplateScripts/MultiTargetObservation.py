@@ -73,7 +73,7 @@ def reset_for_imaging(observation, safety_seconds=5):
     azalt = radec.transform_to(AltAz(obstime=current_time, location=current_location))
     az = azalt.az.deg
     alt = azalt.alt.deg
-    print("Checked az {0} alt {1}.".format(az, alt))
+    print("Checked az: {0}, alt: {1}.".format(az, alt))
 
     # check that coordinates do not take the telescope to an illegal position
     # if 90 < az < 180 and alt < 20 (illegal)
@@ -84,7 +84,7 @@ def reset_for_imaging(observation, safety_seconds=5):
     elif (180 <= az and az <= 360) and (alt >= 45): pass
     else:
         # object is too low in its part of the sky, this is a harsh method but its safe
-        print("{0} too low, skipping and safing telescope to zenith. (Az:{1}, Alt:{2})".format(observation["target_name"], az, alt))
+        print("{0} too low, skipping and safing telescope to near zenith. (Az:{1}, Alt:{2})".format(observation["target_name"], az, alt))
 
         # safeing telescope at zenith
         safe_target = (get_lst(), 47)
@@ -268,7 +268,7 @@ if obs_list_ok:
             print("Reached maximum loops of {0}.".format(obs_loop))
             break
 
-        print("Pausing between loops for {0} seconds.".format(obs_pause))
+        print("\nPausing between loops for {0} seconds.".format(obs_pause))
         time.sleep(obs_pause)
 
     ### close telescope connections
