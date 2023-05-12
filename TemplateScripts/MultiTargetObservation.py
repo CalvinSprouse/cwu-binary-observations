@@ -22,7 +22,7 @@ import ace.focuser
 
 # imports from local .py files
 from Initializer import *
-from ExampleObsConfig import *
+from ObsConfig import *
 # from FitsObjFixer import fix_fits_objects
 
 
