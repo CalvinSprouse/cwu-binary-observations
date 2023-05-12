@@ -2,7 +2,6 @@
 # it really serves no purpose to run this alone
 # Python Version: 2
 
-
 # imports
 from __future__ import print_function
 
@@ -30,7 +29,7 @@ def connect():
     filterwheel = ace.filterwheel.FilterWheel(conn, "telescope", "Filter Wheel")
     print("Filter Wheel Connected {0}".format(filterwheel))
 
-    focuser = ace.focuser.Focuser(conn, "telescope", "Focuser")
+    focuser = ace.focuser.Focuser(conn, "telescope", "Main Focus")
     print("Focuser Connected {0}".format(focuser))
 
     # dome = ace.dome.Dome(conn, "telescope", "Dome")
@@ -39,13 +38,13 @@ def connect():
 
 
 # define functions to output information on telescope parts
-def get_telescope_info(telescope_conn: ace.telescope.Telescope) -> dict:
+def get_telescope_info(telescope_conn):
     return {
         "target": telescope_conn.get_target(),
         "position": telescope_conn.get_position(),
     }
 
-def get_camera_info(camera_conn: ace.camera.Camera) -> dict:
+def get_camera_info(camera_conn):
     return {
         "state": camera_conn.state,
         "temperature": camera_conn.temperature,
@@ -55,7 +54,7 @@ def get_camera_info(camera_conn: ace.camera.Camera) -> dict:
         "template": camera_conn.template,
     }
 
-def get_filterwheel_info(filterwheel_conn: ace.filterwheel.FilterWheel) -> dict:
+def get_filterwheel_info(filterwheel_conn):
     return {
         "state": filterwheel_conn.state,
         "position": filterwheel_conn.position,
@@ -65,7 +64,7 @@ def get_filterwheel_info(filterwheel_conn: ace.filterwheel.FilterWheel) -> dict:
         "names": filterwheel_conn.get_names(),
     }
 
-def get_dome_info(dome_conn: ace.dome.Dome) -> dict:
+def get_dome_info(dome_conn):
     return {
         "state": dome_conn.state,
         "azimuth": dome_conn.azimuth,
@@ -74,7 +73,7 @@ def get_dome_info(dome_conn: ace.dome.Dome) -> dict:
         "park_azimuth": dome_conn.park_azimuth,
     }
 
-def get_focuser_info(focuser_conn: ace.focuser.Focuser) -> dict:
+def get_focuser_info(focuser_conn):
     return {
         "state": focuser_conn.state,
         "position": focuser_conn.position,

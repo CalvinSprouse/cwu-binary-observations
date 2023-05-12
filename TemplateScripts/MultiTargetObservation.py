@@ -12,13 +12,18 @@ import astropy.units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 from astropy.coordinates.name_resolve import NameResolveError
+from astropy.utils import iers
 
-import ace.syscore
-import ace.telescope
-import ace.camera
-import ace.dome
-import ace.filterwheel
-import ace.focuser
+# reallly really bad practice but just stop with the warnings
+import warnings
+warnings.filterwarnings("ignore")
+
+# import ace.syscore
+# import ace.telescope
+# import ace.camera
+# import ace.dome
+# import ace.filterwheel
+# import ace.focuser
 
 # imports from local .py files
 from Initializer import *
@@ -26,43 +31,49 @@ from ObsConfig import *
 # from FitsObjFixer import fix_fits_objects
 
 
+### set astropy connection tables (for some reason)
+# iers_a = iers.IERS_A.open("http://datacenter.iers.org/data/9/finals2000A.all")
+# iers.IERS_A.iers_table = iers_a
+
+
 ### get telescope connection objects
 conn, telescope, camera, filterwheel, focuser = connect()
 
 
 ### establish location/time (will update periodically)
-current_location = EarthLocation(lat=47.00*u.deg, lon=-120.54*u.deg)
-current_time = Time(datetime.utcnow(), location=current_location) + utc_offset*u.hour
+current_location = EarthLocation.from_geodetic(lat=47.00*u.deg, lon=-120.54*u.deg, height=400*u.m)
+current_time = Time(datetime.utcnow(), location=current_location)
+print("Established current location (do not attempt to read) {0} and current time {1}.".format(current_location, current_time))
 
 # get the lst
-current_lst = Time(datetime.utcnow(), location=current_location).sidereal_time("mean").deg
+# print("Established current LST {0}.")
 
 
 ### define a function to reset the telescope between images
 def reset_for_imaging(observation, safety_seconds=5):
     # get current time for coordinate transformation
-    current_time = Time(datetime.utcnow(), location=current_location) + utc_offset*u.hour
+    current_time = Time(datetime.utcnow(), location=current_location)
 
     # get the az/alt of the target
-    radec = SkyCoord(ra=observation["target_position"][0]*u.deg, dec=observation["target_position"][1]*u.deg)
+    radec = SkyCoord(ra=observation["target_pos"][0]*u.deg, dec=observation["target_pos"][1]*u.deg)
     azalt = radec.transform_to(AltAz(obstime=current_time, location=current_location))
     az = azalt.az.deg
     alt = azalt.alt.deg
+    print("Checked az {0} alt {1}.".format(az, alt))
 
     # check that coordinates do not take the telescope to an illegal position
     # if 90 < az < 180 and alt < 20 (illegal)
     # if 180 < az < 360 and alt < 40 (illegal)
     # add 5 degress for safety
     # these values could defo be tweaked
-    if (90 < az and az < 180) and (alt >= 25): pass
+    if (0 < az and az < 180) and (alt >= 25): pass
     elif (180 <= az and az <= 360) and (alt >= 45): pass
     else:
         # object is too low in its part of the sky, this is a harsh method but its safe
         print("{0} too low, skipping. (Az:{1}, Alt:{2})".format(observation["target_name"], az, alt))
 
-        # false return causes looping to stop, user will have to remove the target from the observation list
-        # I could make it continue and just skip the object?
-        return True
+        # false return causes skipped object
+        return False
 
     # move telescope
     telescope.go_to_j2000(observation["target_pos"][0], observation["target_pos"][1])
@@ -100,12 +111,18 @@ def reset_for_imaging(observation, safety_seconds=5):
         str(observation.get("exp_time")).replace(".", "-"),) + "{{seq:3}}_PY.fits"
     time.sleep(safety_seconds)
 
+    # true return means good to take pictures!
+    return True
 
+
+### define a function to run a single observation loop
 def do_observations():
     for observation in obs_list:
         # move the telescope to the observation target
-        print("\nResetting telescope for new observation.")
-        reset_for_imaging(observation)
+        print("\nResetting telescope for new observation of {0}.".format(observation["target_name"]))
+
+        # attempt to reset the telescope but skip the target if false return
+	if not reset_for_imaging(observation): continue
 
         # get information for readout
         telescope_info = get_telescope_info(telescope)
@@ -224,9 +241,6 @@ if obs_list_ok:
     while True:
         # iterate obs_loops
         obs_loops += 1
-
-        # re-establish ace connection (this prevents seg faults in theory)
-        conn, telescope, camera, filterwheel, focuser = connect()
 
         # do an observation loop and check for end conditions
         if not do_observations(): break

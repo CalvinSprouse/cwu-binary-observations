@@ -65,7 +65,7 @@ obs_list = [
     {
         "target_name": "MX UMa",
         "filter_name": "Bessel V",
-        "exp_time": 8,
+        "exp_time": 10,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
