@@ -45,8 +45,22 @@ current_location = EarthLocation.from_geodetic(lat=47.00*u.deg, lon=-120.54*u.de
 current_time = Time(datetime.utcnow(), location=current_location)
 print("Established current location (do not attempt to read) {0} and current time {1}.".format(current_location, current_time))
 
-# get the lst
-# print("Established current LST {0}.")
+
+### define a function to calculate LST
+def get_lst():
+    days_since = (datetime.today() - datetime(datetime.now().year, 3, 21)).days
+    hours_from_days = days_since*4/60
+    lst = hours_from_days + (datetime.now().hour - 13)
+
+    # check for end conditions on lst cause time is pesky
+    if lst < 0: lst += 24
+    if lst > 24: lst -= 24
+
+    return lst*360/24
+
+
+### print lst for calibration purposes
+print("LST found to be {0}.".format(get_lst()))
 
 
 ### define a function to reset the telescope between images
@@ -70,7 +84,13 @@ def reset_for_imaging(observation, safety_seconds=5):
     elif (180 <= az and az <= 360) and (alt >= 45): pass
     else:
         # object is too low in its part of the sky, this is a harsh method but its safe
-        print("{0} too low, skipping. (Az:{1}, Alt:{2})".format(observation["target_name"], az, alt))
+        print("{0} too low, skipping and safing telescope to zenith. (Az:{1}, Alt:{2})".format(observation["target_name"], az, alt))
+
+        # safeing telescope at zenith
+        safe_target = (get_lst(), 47)
+        telescope.go_to_j2000(safe_target[0], safe_target[1])
+        while (abs(telescope.get_target().ra - telescope.get_position()[0]) > 0.5) and (abs(telescope.get_target().dec - telescope.get_position()[1]) < 0.5):
+            time.sleep(safety_seconds)
 
         # false return causes skipped object
         return False
@@ -122,7 +142,7 @@ def do_observations():
         print("\nResetting telescope for new observation of {0}.".format(observation["target_name"]))
 
         # attempt to reset the telescope but skip the target if false return
-	if not reset_for_imaging(observation): continue
+        if not reset_for_imaging(observation): continue
 
         # get information for readout
         telescope_info = get_telescope_info(telescope)
@@ -247,6 +267,8 @@ if obs_list_ok:
         elif obs_loops >= obs_loop and obs_loop > 0:
             print("Reached maximum loops of {0}.".format(obs_loop))
             break
+
+        print("Pausing between loops for {0} seconds.".format(obs_pause))
         time.sleep(obs_pause)
 
     ### close telescope connections

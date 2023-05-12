@@ -41,7 +41,7 @@ obs_list = [
     {
         "target_name": "V417 Boo",
         "filter_name": "Bessel V",
-        "exp_time": 12,
+        "exp_time": 10,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
@@ -49,7 +49,7 @@ obs_list = [
     {
         "target_name": "V336 Boo",
         "filter_name": "Bessel V",
-        "exp_time": 12,
+        "exp_time": 30,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
@@ -65,7 +65,7 @@ obs_list = [
     {
         "target_name": "MX UMa",
         "filter_name": "Bessel V",
-        "exp_time": 10,
+        "exp_time": 12,
         "img_count": img_count,
         "pause_time": basic_pause,
     },
