@@ -83,11 +83,14 @@ def reset_for_imaging(observation, safety_seconds=5):
     if (0 < az and az < 180) and (alt >= 25): pass
     elif (180 <= az and az <= 360) and (alt >= 45): pass
     else:
+        # get the safe position
+        safe_target = (get_lst(), 47)
+
         # object is too low in its part of the sky, this is a harsh method but its safe
-        print("{0} too low, skipping and safing telescope to near zenith. (Az:{1}, Alt:{2})".format(observation["target_name"], az, alt))
+        print("{0} too low (az: {1}, alt: {2}), skipping and safing telescope to near zenith. (Az:{3}, Alt:{4})".format(
+            observation["target_name"], az, alt, safe_target[0], safe_target[1]))
 
         # safeing telescope at zenith
-        safe_target = (get_lst(), 47)
         telescope.go_to_j2000(safe_target[0], safe_target[1])
         while (abs(telescope.get_target().ra - telescope.get_position()[0]) > 0.5) and (abs(telescope.get_target().dec - telescope.get_position()[1]) < 0.5):
             time.sleep(safety_seconds)
