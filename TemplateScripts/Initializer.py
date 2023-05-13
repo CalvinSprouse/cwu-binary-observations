@@ -5,6 +5,11 @@
 # imports
 from __future__ import print_function
 
+import time
+
+import astropy.units as u
+from astropy.coordinates import SkyCoord, AltAz
+
 import ace.syscore
 import ace.telescope
 import ace.camera
@@ -81,3 +86,64 @@ def get_focuser_info(focuser_conn):
         "minimum": focuser_conn.minimum,
         "maximum": focuser_conn.maximum,
     }
+
+
+# define functions to move the telescope and components safely
+def move_telescope(telescope, ra_deg, dec_deg, current_location, current_time, safety_pause=5):
+    # returns true if moved successfully, false otherwise
+    # convert ra dec to az alt and check against limits
+    radec = SkyCoord(ra=ra_deg*u.deg, dec=dec_deg*u.deg)
+    azalt = radec.transform_to(AltAz(obstime=current_time, location=current_location))
+    az = azalt.az.deg
+    alt = azalt.alt.deg
+    print("Found az: {0}, alt: {1}.".format(az, alt))
+
+    # check, if pass then the position is safe
+    # if the position is not safe return false
+    # the main ctrl script will determine from there what to do
+    if (0 < az and az < 180) and (alt >= 25): pass
+    elif (180 <= az and az <= 360) and (alt > 45): pass
+    else: return False
+
+    # the position was safe so start slewing
+    print("Moving telescope to ra: {0}, dec: {1}.".format(ra_deg*24/360, dec_deg*24/260))
+    telescope.go_to_j2000(ra_deg, dec_deg)
+
+    # wait for the telescope to finish moving
+    target_ra = telescope.get_target().ra
+    target_dec = telescope.get_target().dec
+    while ((abs(target_ra - telescope.get_position()[0]) > 0.1)
+           and (abs(target_dec - telescope.get_position()[0] > 0.1))):
+        time.sleep(safety_pause)
+
+    # telescope is stopped so return True
+    return True
+
+def change_filter(filterwheel, target_filter, safety_pause=5):
+    # returns True if changed successfully, otherwise False
+    empty_name = "Empty"
+
+    # start by resetting the filterwheel using recursion
+    if target_filter != empty_name:
+        change_filter(filterwheel, target_filter=empty_name, safety_pause=safety_pause)
+
+    # move to target position
+    print("Moving filterwheel to {0}.".format(target_filter))
+    filterwheel.go_to(target_filter)
+
+    # wait until not moving
+    while filterwheel.state == ace.filterwheel.state.MOVING: time.sleep(safety_pause)
+
+    # filter changed so return True
+    return True
+
+def change_focus(focuser, target_focus, safety_pause=5):
+    # returns True if changed successfullty, otherwise False
+    print("Moving main focus to {0}.".format(target_focus))
+    focuser.go(target_focus)
+
+    # wait for not moving
+    while focuser.state != ace.focuser.state.STOPPED: time.sleep(safety_pause)
+
+    # successful move so return True
+    return True
