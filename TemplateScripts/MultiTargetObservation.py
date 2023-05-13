@@ -43,14 +43,15 @@ conn, telescope, camera, filterwheel, focuser = connect()
 ### establish location/time (will update periodically)
 current_location = EarthLocation.from_geodetic(lat=47.00*u.deg, lon=-120.54*u.deg, height=400*u.m)
 current_time = Time(datetime.utcnow(), location=current_location)
-print("Established current location (do not attempt to read) {0} and current time {1}.".format(current_location, current_time))
+print("Established current location (I don't understand the units) {0} and current time (UTC) {1}.".format(
+    current_location, current_time))
 
 
 ### define a function to calculate LST
 def get_lst():
     days_since = (datetime.today() - datetime(datetime.now().year, 3, 21)).days
     hours_from_days = days_since*4/60
-    lst = hours_from_days + (datetime.now().hour - 13)
+    lst = hours_from_days + (datetime.now().hour - 13) + datetime.now().minute/60
 
     # check for end conditions on lst cause time is pesky
     if lst < 0: lst += 24
@@ -90,9 +91,10 @@ def reset_for_imaging(observation, safety_seconds=5):
         print("{0} too low (az: {1}, alt: {2}), skipping and safing telescope to near zenith. (Az:{3}, Alt:{4})".format(
             observation["target_name"], az, alt, safe_target[0], safe_target[1]))
 
-        # safeing telescope at zenith
+        # safeing telescope at near zenith
         telescope.go_to_j2000(safe_target[0], safe_target[1])
-        while (abs(telescope.get_target().ra - telescope.get_position()[0]) > 0.5) and (abs(telescope.get_target().dec - telescope.get_position()[1]) < 0.5):
+        while ((abs(telescope.get_target().ra - telescope.get_position()[0]) > 0.5)
+               and (abs(telescope.get_target().dec - telescope.get_position()[1]) < 0.5)):
             time.sleep(safety_seconds)
 
         # false return causes skipped object
@@ -102,7 +104,8 @@ def reset_for_imaging(observation, safety_seconds=5):
     telescope.go_to_j2000(observation["target_pos"][0], observation["target_pos"][1])
 
     # "wait until" telescope in position
-    while (abs(telescope.get_target().ra - telescope.get_position()[0]) > 0.5) and (abs(telescope.get_target().dec - telescope.get_position()[1]) < 0.5):
+    while ((abs(telescope.get_target().ra - telescope.get_position()[0]) > 0.5)
+           and (abs(telescope.get_target().dec - telescope.get_position()[1]) < 0.5)):
        # print("> Slewing to {0} from {1}".format(telescope.get_target().ra, telescope.get_position()))
        time.sleep(safety_seconds)
 
@@ -206,7 +209,8 @@ for index in range(len(obs_list)):
             try:
                 position = SkyCoord.from_name(observation.get("target_name"))
             except NameResolveError:
-                print(error_str_prefix + "Error when trying to get the position of {}. Fix in obs_list and try again.".format(observation.get("target_name")))
+                print(error_str_prefix + "Error when trying to get the position of {}.".format(
+                    observation.get("target_name")))
                 obs_list_ok = False
         # if the object appears to exist then record its position in the target_pos slot
         obs_list[index]["target_pos"] = (position.ra.degree, position.dec.degree)
@@ -218,7 +222,8 @@ for index in range(len(obs_list)):
     # focus wheel dict
     try:
         if not observation.get("filter_name") in filter_focus_dict:
-            print(error_str_prefix + "Filter {0} not found in the filter to focus dict.".format(observation.get("filter_name")))
+            print(error_str_prefix + "Filter {0} not found in the filter to focus dict.".format(
+                observation.get("filter_name")))
             obs_list_ok = False
     except KeyError:
         print(error_str_prefix + "Required entry filter_name not found.")
@@ -270,6 +275,8 @@ if obs_list_ok:
         elif obs_loops >= obs_loop and obs_loop > 0:
             print("Reached maximum loops of {0}.".format(obs_loop))
             break
+        elif time.time() - start_time > obs_time*60*60 and obs_time != 0:
+            print("Reached maximum observation time of {0} hours.".format(obs_time))
 
         print("\nPausing between loops for {0} seconds.".format(obs_pause))
         time.sleep(obs_pause)

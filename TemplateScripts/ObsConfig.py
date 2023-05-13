@@ -10,8 +10,8 @@ utc_offset = -7
 obs_loop = 0
 
 # obs_time controls the maximum duration to run the observation in hours
-# must be some non-zero number (failsafe)
-# 2 hours is a good limit beyond which the lenses may require re-focusing
+# should be some non-zero number (failsafe)
+# 2 hours is a good limit beyond which the filters may require re-focusing
 obs_time = 2
 
 # obs_pause controls how long to pause between loops in seconds
@@ -56,10 +56,12 @@ example_obs_list = [
         # the exposure time in seconds
         "exp_time":"",
 
-        # the number of images to take, if more than 1 they will be back-to-back with a 1 second pause (optional, default=1)
+        # the number of images to take, if more than 1 they will be back-to-back with a 1 second pause
+        # (optional, default=1)
         "img_count":"",
 
-        # the time to pause after this observation in seconds (optional, default=1)
+        # the time to pause after this observation in seconds
+        # (optional, default=1)
         "pause_time":"",
 
         # a custom prefix to put in front of files
