@@ -1,8 +1,5 @@
 # configure the observation conditions
 
-# number of hours change from UTC, only changes with PDT vs PST time change
-utc_offset = -7
-
 # obs_loop controls the maximum number of iterations
 # 0 = infinite
 obs_loop = 0
