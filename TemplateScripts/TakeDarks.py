@@ -32,6 +32,7 @@ conn, telescope, camera, filterwheel, focuser = connect()
 # the set only includes unique items so duplicate exposures will
 # be removed automatically
 dark_times = set([d.get("exp_time") for d in obs_list if "exp_time" in d])
+print("Taking {0} darks.".format(dark_times))
 
 
 ### iterate over the list of dark times and take darks!
@@ -39,7 +40,7 @@ for dark_time in dark_times:
     # pause between imaging (safety)
     time.sleep(1)
     for img_index in range(dark_exp_count):
-        print("Taking {0}/{1} {2} second darks.".format(img_index, dark_exp_count, dark_time))
+        print("Taking {0}/{1} {2} second darks.".format((img_index+1), dark_exp_count, dark_time))
 
         # reset the camera template
         camera.template = "Dark_{0}_".format(dark_time) + "{{seq:3}}_PY.fits"
