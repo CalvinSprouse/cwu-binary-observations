@@ -88,7 +88,7 @@ def reset_for_imaging(observation, safety_seconds=5):
         safe_target = (get_lst(), 47)
 
         # object is too low in its part of the sky, this is a harsh method but its safe
-        print("{0} too low (az: {1}, alt: {2}), skipping and safing telescope to near zenith. (Az:{3}, Alt:{4})".format(
+        print("{0} too low (az: {1}, alt: {2}), skipping and safing telescope to near zenith. (Ra:{3}, Dec:{4})".format(
             observation["target_name"], az, alt, safe_target[0], safe_target[1]))
 
         # safeing telescope at near zenith
