@@ -287,8 +287,8 @@ else:
     print("Errors were found during obs_list check. Fix and re-run.")
 
 ### disconnect
-conn = None
-telescope = None
-camera = None
-filterwheel = None
-focuser = None
+# conn = None
+# telescope = None
+# camera = None
+# filterwheel = None
+# focuser = None
