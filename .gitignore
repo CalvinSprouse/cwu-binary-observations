@@ -3,6 +3,7 @@
 ### BinaryObservations ###
 # custom ignores
 *.DS_Store
+AstronomyResearchData/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
